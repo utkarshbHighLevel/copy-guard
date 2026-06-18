@@ -92,6 +92,11 @@
   .num-zero { color: #5a6272; }
   .footer { color: var(--muted); font-size: 12px; margin-top: 28px; text-align: center; }
   .legend-note { color: var(--muted); font-size: 12px; margin: -6px 0 16px; }
+  .repo-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 20px; }
+  .filter-btn { background: #1a1e27; border: 1px solid #2a2f3a; color: #9aa3b2; padding: 6px 13px; border-radius: 7px; font-size: 13px; cursor: pointer; transition: all .12s; }
+  .filter-btn:hover { border-color: #3a4150; color: #e6e9ef; }
+  .filter-btn.active { background: rgba(77,140,255,.16); border-color: #4d8cff; color: #cfe0ff; }
+  .filter-btn .cnt { opacity: .55; font-size: 11px; margin-left: 4px; }
 </style>
 </head>
 <body>
@@ -101,6 +106,8 @@
 </header>
 <main>
   <div class="cards" id="cards"></div>
+
+  <div class="repo-filter" id="repoFilter"></div>
 
   <p class="legend-note">
     Each app is deduplicated to its <strong>latest run</strong>. Findings categories:
@@ -149,46 +156,181 @@
 <script>
 // ---- Raw metrics (embedded verbatim from copy-guard-metrics.json) ----
 const RAW = {
-  "2026-06-17T09:22:18.631Z": { "ghl-seo-app": { "seoApp": { "startedAt": "2026-06-17T09:22:18.631Z", "durationMs": 232, "target": "apps/seoApp/src/locales/en_US.json", "findings": { "errors": 2, "warnings": 170, "concat": 0, "llmFindings": 0 }, "llm": { "enabled": false, "calls": 0, "totalTokens": 0, "estimatedCostUsd": 0 } } } },
-  "2026-06-17T09:50:27.736Z": { "ghl-seo-app": { "seoApp": { "startedAt": "2026-06-17T09:50:27.736Z", "durationMs": 42304, "target": "apps/seoApp/src/locales/en_US.json", "findings": { "errors": 2, "warnings": 170, "concat": 0, "llmFindings": 7 }, "llm": { "enabled": true, "calls": 94, "totalTokens": 99294, "estimatedCostUsd": 0.146401 } } } },
-  "2026-06-17T10:16:14.819Z": { "ghl-seo-app": { "seoApp": { "startedAt": "2026-06-17T10:16:14.819Z", "durationMs": 43846, "target": "apps/seoApp/src/locales/en_US.json", "findings": { "errors": 2, "warnings": 170, "concat": 0, "llmFindings": 7 }, "llm": { "enabled": true, "calls": 94, "totalTokens": 99573, "estimatedCostUsd": 0.1470989 } } } },
-  "2026-06-17T10:16:59.403Z": { "ghl-seo-app": { "schema-markup": { "startedAt": "2026-06-17T10:16:59.403Z", "durationMs": 606, "target": "apps/schema-markup/src/locales/en.json", "findings": { "errors": 0, "warnings": 4, "concat": 0, "llmFindings": 0 }, "llm": { "enabled": false, "calls": 0, "totalTokens": 0, "estimatedCostUsd": 0 } } } },
-  "2026-06-17T10:21:23.566Z": { "ghl-seo-app": { "seoApp": { "startedAt": "2026-06-17T10:21:23.566Z", "durationMs": 43841, "target": "apps/seoApp/src/locales/en_US.json", "findings": { "errors": 2, "warnings": 170, "concat": 0, "llmFindings": 7 }, "llm": { "enabled": true, "calls": 94, "totalTokens": 100529, "estimatedCostUsd": 0.1494889 } } } },
-  "2026-06-17T10:23:07.064Z": { "ghl-seo-app": { "seoApp": { "startedAt": "2026-06-17T10:23:07.064Z", "durationMs": 45193, "target": "apps/seoApp/src/locales/en_US.json", "findings": { "errors": 2, "warnings": 170, "concat": 0, "llmFindings": 7 }, "llm": { "enabled": true, "calls": 94, "totalTokens": 99587, "estimatedCostUsd": 0.1471339 } } } },
-  "2026-06-17T10:23:53.274Z": { "ghl-seo-app": { "schema-markup": { "startedAt": "2026-06-17T10:23:53.274Z", "durationMs": 587, "target": "apps/schema-markup/src/locales/en.json", "findings": { "errors": 0, "warnings": 4, "concat": 0, "llmFindings": 0 }, "llm": { "enabled": false, "calls": 0, "totalTokens": 0, "estimatedCostUsd": 0 } } } },
-  "2026-06-17T10:27:19.481Z": { "ghl-crm-frontend": { "ai-employees": { "startedAt": "2026-06-17T10:27:19.481Z", "durationMs": 336226, "target": "apps/ai-employees/src/locales/en.json", "findings": { "errors": 14, "warnings": 1350, "concat": 5, "llmFindings": 127 }, "llm": { "enabled": true, "calls": 843, "totalTokens": 956818, "estimatedCostUsd": 1.4673234 } } } },
-  "2026-06-17T10:32:56.019Z": { "ghl-crm-frontend": { "auth": { "startedAt": "2026-06-17T10:32:56.019Z", "durationMs": 9947, "target": "apps/auth/src/locales/en-US.json", "findings": { "errors": 0, "warnings": 12, "concat": 0, "llmFindings": 3 }, "llm": { "enabled": true, "calls": 15, "totalTokens": 15958, "estimatedCostUsd": 0.0240044 } } } },
-  "2026-06-17T10:33:06.252Z": { "ghl-crm-frontend": { "bulk-actions": { "startedAt": "2026-06-17T10:33:06.252Z", "durationMs": 174223, "target": "apps/bulk-actions/src/locales/en_US.json", "findings": { "errors": 11, "warnings": 114, "concat": 3, "llmFindings": 69 }, "llm": { "enabled": true, "calls": 433, "totalTokens": 481685, "estimatedCostUsd": 0.7358545 } } } },
-  "2026-06-17T10:36:01.044Z": { "ghl-crm-frontend": { "contacts": { "startedAt": "2026-06-17T10:36:01.044Z", "durationMs": 79710, "target": "apps/contacts/src/locales/en.json", "findings": { "errors": 7, "warnings": 36, "concat": 5, "llmFindings": 32 }, "llm": { "enabled": true, "calls": 190, "totalTokens": 208242, "estimatedCostUsd": 0.3229944 } } } },
-  "2026-06-17T10:37:21.061Z": { "ghl-crm-frontend": { "contacts-highrise": { "startedAt": "2026-06-17T10:37:21.061Z", "durationMs": 58180, "target": "apps/contacts-highrise/src/locales/en.json", "findings": { "errors": 2, "warnings": 77, "concat": 0, "llmFindings": 28 }, "llm": { "enabled": true, "calls": 135, "totalTokens": 151252, "estimatedCostUsd": 0.2334404 } } } },
-  "2026-06-17T10:38:19.540Z": { "ghl-crm-frontend": { "conversations": { "startedAt": "2026-06-17T10:38:19.540Z", "durationMs": 8837, "target": "apps/conversations/src/locales/en.json", "findings": { "errors": 0, "warnings": 4, "concat": 0, "llmFindings": 0 }, "llm": { "enabled": true, "calls": 1, "totalTokens": 1411, "estimatedCostUsd": 0.0023791 } } } },
-  "2026-06-17T10:38:28.679Z": { "ghl-crm-frontend": { "conversations-components": { "startedAt": "2026-06-17T10:38:28.679Z", "durationMs": 27271, "target": "apps/conversations-components/src/locales/en.json", "findings": { "errors": 6, "warnings": 99, "concat": 2, "llmFindings": 10 }, "llm": { "enabled": true, "calls": 44, "totalTokens": 56866, "estimatedCostUsd": 0.093897 } } } },
-  "2026-06-17T10:38:56.258Z": { "ghl-crm-frontend": { "conversations-new-ui": { "startedAt": "2026-06-17T10:38:56.258Z", "durationMs": 177648, "target": "apps/conversations-new-ui/src/locales/en.json", "findings": { "errors": 13, "warnings": 600, "concat": 4, "llmFindings": 61 }, "llm": { "enabled": true, "calls": 434, "totalTokens": 500418, "estimatedCostUsd": 0.7783244 } } } },
-  "2026-06-17T10:41:54.501Z": { "ghl-crm-frontend": { "conversations-utilities": { "startedAt": "2026-06-17T10:41:54.501Z", "durationMs": 135780, "target": "apps/conversations-utilities/src/locales/en_US.json", "findings": { "errors": 6, "warnings": 170, "concat": 1, "llmFindings": 86 }, "llm": { "enabled": true, "calls": 285, "totalTokens": 355178, "estimatedCostUsd": 0.5764888 } } } },
-  "2026-06-17T10:44:10.583Z": { "ghl-crm-frontend": { "crm-objects-settings": { "startedAt": "2026-06-17T10:44:10.583Z", "durationMs": 154706, "target": "apps/crm-objects-settings/src/locales/en_US.json", "findings": { "errors": 4, "warnings": 34, "concat": 4, "llmFindings": 53 }, "llm": { "enabled": true, "calls": 356, "totalTokens": 412545, "estimatedCostUsd": 0.6455727 } } } },
-  "2026-06-17T10:46:45.841Z": { "ghl-crm-frontend": { "custom-fields": { "startedAt": "2026-06-17T10:46:45.841Z", "durationMs": 22083, "target": "apps/custom-fields/src/locales/en.json", "findings": { "errors": 0, "warnings": 47, "concat": 1, "llmFindings": 4 }, "llm": { "enabled": true, "calls": 27, "totalTokens": 30384, "estimatedCostUsd": 0.0453866 } } } },
-  "2026-06-17T10:47:08.486Z": { "ghl-crm-frontend": { "custom-objects": { "startedAt": "2026-06-17T10:47:08.486Z", "durationMs": 162910, "target": "apps/custom-objects/src/locales/en.json", "findings": { "errors": 3, "warnings": 44, "concat": 1, "llmFindings": 77 }, "llm": { "enabled": true, "calls": 378, "totalTokens": 441724, "estimatedCostUsd": 0.7092582 } } } },
-  "2026-06-17T10:49:51.963Z": { "ghl-crm-frontend": { "documents": { "startedAt": "2026-06-17T10:49:51.963Z", "durationMs": 19538, "target": "apps/documents/src/locales/en.json", "findings": { "errors": 1, "warnings": 61, "concat": 0, "llmFindings": 4 }, "llm": { "enabled": true, "calls": 48, "totalTokens": 49173, "estimatedCostUsd": 0.0731399 } } } },
-  "2026-06-17T10:50:12.057Z": { "ghl-crm-frontend": { "events-management": { "startedAt": "2026-06-17T10:50:12.057Z", "durationMs": 282389, "target": "apps/events-management/src/locales/en.json", "findings": { "errors": 6, "warnings": 366, "concat": 0, "llmFindings": 47 }, "llm": { "enabled": true, "calls": 848, "totalTokens": 870055, "estimatedCostUsd": 1.2538941 } } } },
-  "2026-06-17T10:54:55.007Z": { "ghl-crm-frontend": { "integrations": { "startedAt": "2026-06-17T10:54:55.007Z", "durationMs": 89595, "target": "apps/integrations/src/locales/en_US.json", "findings": { "errors": 7, "warnings": 341, "concat": 0, "llmFindings": 20 }, "llm": { "enabled": true, "calls": 212, "totalTokens": 229294, "estimatedCostUsd": 0.3444966 } } } },
-  "2026-06-17T10:56:25.164Z": { "ghl-crm-frontend": { "labs": { "startedAt": "2026-06-17T10:56:25.164Z", "durationMs": 15861, "target": "apps/labs/src/locales/en.json", "findings": { "errors": 1, "warnings": 30, "concat": 0, "llmFindings": 3 }, "llm": { "enabled": true, "calls": 33, "totalTokens": 32938, "estimatedCostUsd": 0.0474816 } } } },
-  "2026-06-17T10:56:41.310Z": { "ghl-crm-frontend": { "leadconnector-integrations": { "startedAt": "2026-06-17T10:56:41.310Z", "durationMs": 23120, "target": "apps/leadconnector-integrations/src/locales/en.json", "findings": { "errors": 2, "warnings": 87, "concat": 0, "llmFindings": 5 }, "llm": { "enabled": true, "calls": 34, "totalTokens": 39546, "estimatedCostUsd": 0.0612164 } } } },
-  "2026-06-17T10:57:04.722Z": { "ghl-crm-frontend": { "marketplace": { "startedAt": "2026-06-17T10:57:04.722Z", "durationMs": 161442, "target": "apps/marketplace/src/locales/en_US.json", "findings": { "errors": 6, "warnings": 599, "concat": 10, "llmFindings": 65 }, "llm": { "enabled": true, "calls": 407, "totalTokens": 462478, "estimatedCostUsd": 0.706625 } } } },
-  "2026-06-17T10:59:46.452Z": { "ghl-crm-frontend": { "opportunities": { "startedAt": "2026-06-17T10:59:46.452Z", "durationMs": 171542, "target": "apps/opportunities/src/locales/en_US.json", "findings": { "errors": 6, "warnings": 164, "concat": 4, "llmFindings": 51 }, "llm": { "enabled": true, "calls": 412, "totalTokens": 453857, "estimatedCostUsd": 0.6941827 } } } },
-  "2026-06-17T11:02:38.628Z": { "ghl-crm-frontend": { "preference-management": { "startedAt": "2026-06-17T11:02:38.628Z", "durationMs": 25854, "target": "apps/preference-management/src/locales/en_US.json", "findings": { "errors": 3, "warnings": 33, "concat": 0, "llmFindings": 9 }, "llm": { "enabled": true, "calls": 45, "totalTokens": 51276, "estimatedCostUsd": 0.0814554 } } } },
-  "2026-06-17T11:03:04.782Z": { "ghl-crm-frontend": { "agent-logs": { "startedAt": "2026-06-17T11:03:04.782Z", "durationMs": 8841, "target": "apps/record-components/agent-logs/src/locales/en.json", "findings": { "errors": 0, "warnings": 1, "concat": 0, "llmFindings": 0 }, "llm": { "enabled": true, "calls": 4, "totalTokens": 4362, "estimatedCostUsd": 0.0063752 } } } },
-  "2026-06-17T11:03:13.908Z": { "ghl-crm-frontend": { "appointments": { "startedAt": "2026-06-17T11:03:13.908Z", "durationMs": 9520, "target": "apps/record-components/appointments/src/locales/en.json", "findings": { "errors": 1, "warnings": 13, "concat": 0, "llmFindings": 1 }, "llm": { "enabled": true, "calls": 10, "totalTokens": 10204, "estimatedCostUsd": 0.014543 } } } },
-  "2026-06-17T11:03:23.719Z": { "ghl-crm-frontend": { "contact-activity": { "startedAt": "2026-06-17T11:03:23.719Z", "durationMs": 33432, "target": "apps/record-components/contact-activity/src/locales/en.json", "findings": { "errors": 1, "warnings": 6, "concat": 4, "llmFindings": 20 }, "llm": { "enabled": true, "calls": 72, "totalTokens": 78250, "estimatedCostUsd": 0.1256892 } } } },
-  "2026-06-17T11:03:57.445Z": { "ghl-crm-frontend": { "documents-record": { "startedAt": "2026-06-17T11:03:57.445Z", "durationMs": 26328, "target": "apps/record-components/documents/src/locales/en.json", "findings": { "errors": 1, "warnings": 6, "concat": 0, "llmFindings": 4 }, "llm": { "enabled": true, "calls": 68, "totalTokens": 67061, "estimatedCostUsd": 0.0967047 } } } },
-  "2026-06-17T11:04:24.087Z": { "ghl-crm-frontend": { "manual-action": { "startedAt": "2026-06-17T11:04:24.087Z", "durationMs": 6193, "target": "apps/record-components/manual-action/locales/en.json", "findings": { "errors": 0, "warnings": 1, "concat": 0, "llmFindings": 0 }, "llm": { "enabled": true, "calls": 1, "totalTokens": 1075, "estimatedCostUsd": 0.0015567 } } } },
-  "2026-06-17T11:04:30.599Z": { "ghl-crm-frontend": { "payments": { "startedAt": "2026-06-17T11:04:30.599Z", "durationMs": 6762, "target": "apps/record-components/payments/locales/en.json", "findings": { "errors": 0, "warnings": 0, "concat": 0, "llmFindings": 1 }, "llm": { "enabled": true, "calls": 3, "totalTokens": 2640, "estimatedCostUsd": 0.0037554 } } } },
-  "2026-06-17T11:04:37.648Z": { "ghl-crm-frontend": { "record-details": { "startedAt": "2026-06-17T11:04:37.648Z", "durationMs": 96742, "target": "apps/record-components/record-details/locales/en.json", "findings": { "errors": 1, "warnings": 69, "concat": 0, "llmFindings": 23 }, "llm": { "enabled": true, "calls": 226, "totalTokens": 259611, "estimatedCostUsd": 0.3998599 } } } },
-  "2026-06-17T11:06:14.973Z": { "ghl-crm-frontend": { "right-sidebar": { "startedAt": "2026-06-17T11:06:14.973Z", "durationMs": 10626, "target": "apps/record-components/right-sidebar/locales/en.json", "findings": { "errors": 0, "warnings": 5, "concat": 0, "llmFindings": 1 }, "llm": { "enabled": true, "calls": 18, "totalTokens": 18296, "estimatedCostUsd": 0.0268156 } } } },
-  "2026-06-17T11:06:26.182Z": { "ghl-crm-frontend": { "rollup": { "startedAt": "2026-06-17T11:06:26.182Z", "durationMs": 7731, "target": "apps/rollup/src/locales/en.json", "findings": { "errors": 0, "warnings": 6, "concat": 0, "llmFindings": 2 }, "llm": { "enabled": true, "calls": 5, "totalTokens": 5473, "estimatedCostUsd": 0.0091461 } } } },
-  "2026-06-17T11:06:34.491Z": { "ghl-crm-frontend": { "settings": { "startedAt": "2026-06-17T11:06:34.491Z", "durationMs": 290257, "target": "apps/settings/src/locales/en_US.json", "findings": { "errors": 12, "warnings": 637, "concat": 14, "llmFindings": 75 }, "llm": { "enabled": true, "calls": 733, "totalTokens": 829675, "estimatedCostUsd": 1.2580073 } } } },
-  "2026-06-17T11:11:25.344Z": { "ghl-crm-frontend": { "users": { "startedAt": "2026-06-17T11:11:25.344Z", "durationMs": 42225, "target": "apps/users/src/locales/en_US.json", "findings": { "errors": 3, "warnings": 148, "concat": 0, "llmFindings": 23 }, "llm": { "enabled": true, "calls": 81, "totalTokens": 98540, "estimatedCostUsd": 0.1615598 } } } },
-  "2026-06-17T11:12:08.137Z": { "ghl-crm-frontend": { "voice-ai": { "startedAt": "2026-06-17T11:12:08.137Z", "durationMs": 425562, "target": "apps/voice-ai/src/locales/en_US.json", "findings": { "errors": 3, "warnings": 849, "concat": 12, "llmFindings": 159 }, "llm": { "enabled": true, "calls": 997, "totalTokens": 1169382, "estimatedCostUsd": 1.835588 } } } },
-  "2026-06-17T11:21:54.398Z": { "ghl-crm-frontend": { "users": { "startedAt": "2026-06-17T11:21:54.398Z", "durationMs": 264, "target": "apps/users/src/locales/en_US.json", "findings": { "errors": 3, "warnings": 148, "concat": 0, "llmFindings": 0 }, "llm": { "enabled": false, "calls": 0, "totalTokens": 0, "estimatedCostUsd": 0 } } } }
+  "2026-06-17T09:22:18.631Z":{"ghl-seo-app":{"seoApp":{"startedAt":"2026-06-17T09:22:18.631Z","durationMs":232,"target":"apps/seoApp/src/locales/en_US.json","findings":{"errors":2,"warnings":170,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-17T09:50:27.736Z":{"ghl-seo-app":{"seoApp":{"startedAt":"2026-06-17T09:50:27.736Z","durationMs":42304,"target":"apps/seoApp/src/locales/en_US.json","findings":{"errors":2,"warnings":170,"concat":0,"llmFindings":7},"llm":{"enabled":true,"calls":94,"totalTokens":99294,"estimatedCostUsd":0.146401}}}},
+  "2026-06-17T10:16:14.819Z":{"ghl-seo-app":{"seoApp":{"startedAt":"2026-06-17T10:16:14.819Z","durationMs":43846,"target":"apps/seoApp/src/locales/en_US.json","findings":{"errors":2,"warnings":170,"concat":0,"llmFindings":7},"llm":{"enabled":true,"calls":94,"totalTokens":99573,"estimatedCostUsd":0.1470989}}}},
+  "2026-06-17T10:16:59.403Z":{"ghl-seo-app":{"schema-markup":{"startedAt":"2026-06-17T10:16:59.403Z","durationMs":606,"target":"apps/schema-markup/src/locales/en.json","findings":{"errors":0,"warnings":4,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-17T10:21:23.566Z":{"ghl-seo-app":{"seoApp":{"startedAt":"2026-06-17T10:21:23.566Z","durationMs":43841,"target":"apps/seoApp/src/locales/en_US.json","findings":{"errors":2,"warnings":170,"concat":0,"llmFindings":7},"llm":{"enabled":true,"calls":94,"totalTokens":100529,"estimatedCostUsd":0.1494889}}}},
+  "2026-06-17T10:23:07.064Z":{"ghl-seo-app":{"seoApp":{"startedAt":"2026-06-17T10:23:07.064Z","durationMs":45193,"target":"apps/seoApp/src/locales/en_US.json","findings":{"errors":2,"warnings":170,"concat":0,"llmFindings":7},"llm":{"enabled":true,"calls":94,"totalTokens":99587,"estimatedCostUsd":0.1471339}}}},
+  "2026-06-17T10:23:53.274Z":{"ghl-seo-app":{"schema-markup":{"startedAt":"2026-06-17T10:23:53.274Z","durationMs":587,"target":"apps/schema-markup/src/locales/en.json","findings":{"errors":0,"warnings":4,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-17T10:27:19.481Z":{"ghl-crm-frontend":{"ai-employees":{"startedAt":"2026-06-17T10:27:19.481Z","durationMs":336226,"target":"apps/ai-employees/src/locales/en.json","findings":{"errors":14,"warnings":1350,"concat":5,"llmFindings":127},"llm":{"enabled":true,"calls":843,"totalTokens":956818,"estimatedCostUsd":1.4673234}}}},
+  "2026-06-17T10:32:56.019Z":{"ghl-crm-frontend":{"auth":{"startedAt":"2026-06-17T10:32:56.019Z","durationMs":9947,"target":"apps/auth/src/locales/en-US.json","findings":{"errors":0,"warnings":12,"concat":0,"llmFindings":3},"llm":{"enabled":true,"calls":15,"totalTokens":15958,"estimatedCostUsd":0.0240044}}}},
+  "2026-06-17T10:33:06.252Z":{"ghl-crm-frontend":{"bulk-actions":{"startedAt":"2026-06-17T10:33:06.252Z","durationMs":174223,"target":"apps/bulk-actions/src/locales/en_US.json","findings":{"errors":11,"warnings":114,"concat":3,"llmFindings":69},"llm":{"enabled":true,"calls":433,"totalTokens":481685,"estimatedCostUsd":0.7358545}}}},
+  "2026-06-17T10:36:01.044Z":{"ghl-crm-frontend":{"contacts":{"startedAt":"2026-06-17T10:36:01.044Z","durationMs":79710,"target":"apps/contacts/src/locales/en.json","findings":{"errors":7,"warnings":36,"concat":5,"llmFindings":32},"llm":{"enabled":true,"calls":190,"totalTokens":208242,"estimatedCostUsd":0.3229944}}}},
+  "2026-06-17T10:37:21.061Z":{"ghl-crm-frontend":{"contacts-highrise":{"startedAt":"2026-06-17T10:37:21.061Z","durationMs":58180,"target":"apps/contacts-highrise/src/locales/en.json","findings":{"errors":2,"warnings":77,"concat":0,"llmFindings":28},"llm":{"enabled":true,"calls":135,"totalTokens":151252,"estimatedCostUsd":0.2334404}}}},
+  "2026-06-17T10:38:19.540Z":{"ghl-crm-frontend":{"conversations":{"startedAt":"2026-06-17T10:38:19.540Z","durationMs":8837,"target":"apps/conversations/src/locales/en.json","findings":{"errors":0,"warnings":4,"concat":0,"llmFindings":0},"llm":{"enabled":true,"calls":1,"totalTokens":1411,"estimatedCostUsd":0.0023791}}}},
+  "2026-06-17T10:38:28.679Z":{"ghl-crm-frontend":{"conversations-components":{"startedAt":"2026-06-17T10:38:28.679Z","durationMs":27271,"target":"apps/conversations-components/src/locales/en.json","findings":{"errors":6,"warnings":99,"concat":2,"llmFindings":10},"llm":{"enabled":true,"calls":44,"totalTokens":56866,"estimatedCostUsd":0.093897}}}},
+  "2026-06-17T10:38:56.258Z":{"ghl-crm-frontend":{"conversations-new-ui":{"startedAt":"2026-06-17T10:38:56.258Z","durationMs":177648,"target":"apps/conversations-new-ui/src/locales/en.json","findings":{"errors":13,"warnings":600,"concat":4,"llmFindings":61},"llm":{"enabled":true,"calls":434,"totalTokens":500418,"estimatedCostUsd":0.7783244}}}},
+  "2026-06-17T10:41:54.501Z":{"ghl-crm-frontend":{"conversations-utilities":{"startedAt":"2026-06-17T10:41:54.501Z","durationMs":135780,"target":"apps/conversations-utilities/src/locales/en_US.json","findings":{"errors":6,"warnings":170,"concat":1,"llmFindings":86},"llm":{"enabled":true,"calls":285,"totalTokens":355178,"estimatedCostUsd":0.5764888}}}},
+  "2026-06-17T10:44:10.583Z":{"ghl-crm-frontend":{"crm-objects-settings":{"startedAt":"2026-06-17T10:44:10.583Z","durationMs":154706,"target":"apps/crm-objects-settings/src/locales/en_US.json","findings":{"errors":4,"warnings":34,"concat":4,"llmFindings":53},"llm":{"enabled":true,"calls":356,"totalTokens":412545,"estimatedCostUsd":0.6455727}}}},
+  "2026-06-17T10:46:45.841Z":{"ghl-crm-frontend":{"custom-fields":{"startedAt":"2026-06-17T10:46:45.841Z","durationMs":22083,"target":"apps/custom-fields/src/locales/en.json","findings":{"errors":0,"warnings":47,"concat":1,"llmFindings":4},"llm":{"enabled":true,"calls":27,"totalTokens":30384,"estimatedCostUsd":0.0453866}}}},
+  "2026-06-17T10:47:08.486Z":{"ghl-crm-frontend":{"custom-objects":{"startedAt":"2026-06-17T10:47:08.486Z","durationMs":162910,"target":"apps/custom-objects/src/locales/en.json","findings":{"errors":3,"warnings":44,"concat":1,"llmFindings":77},"llm":{"enabled":true,"calls":378,"totalTokens":441724,"estimatedCostUsd":0.7092582}}}},
+  "2026-06-17T10:49:51.963Z":{"ghl-crm-frontend":{"documents":{"startedAt":"2026-06-17T10:49:51.963Z","durationMs":19538,"target":"apps/documents/src/locales/en.json","findings":{"errors":1,"warnings":61,"concat":0,"llmFindings":4},"llm":{"enabled":true,"calls":48,"totalTokens":49173,"estimatedCostUsd":0.0731399}}}},
+  "2026-06-17T10:50:12.057Z":{"ghl-crm-frontend":{"events-management":{"startedAt":"2026-06-17T10:50:12.057Z","durationMs":282389,"target":"apps/events-management/src/locales/en.json","findings":{"errors":6,"warnings":366,"concat":0,"llmFindings":47},"llm":{"enabled":true,"calls":848,"totalTokens":870055,"estimatedCostUsd":1.2538941}}}},
+  "2026-06-17T10:54:55.007Z":{"ghl-crm-frontend":{"integrations":{"startedAt":"2026-06-17T10:54:55.007Z","durationMs":89595,"target":"apps/integrations/src/locales/en_US.json","findings":{"errors":7,"warnings":341,"concat":0,"llmFindings":20},"llm":{"enabled":true,"calls":212,"totalTokens":229294,"estimatedCostUsd":0.3444966}}}},
+  "2026-06-17T10:56:25.164Z":{"ghl-crm-frontend":{"labs":{"startedAt":"2026-06-17T10:56:25.164Z","durationMs":15861,"target":"apps/labs/src/locales/en.json","findings":{"errors":1,"warnings":30,"concat":0,"llmFindings":3},"llm":{"enabled":true,"calls":33,"totalTokens":32938,"estimatedCostUsd":0.0474816}}}},
+  "2026-06-17T10:56:41.310Z":{"ghl-crm-frontend":{"leadconnector-integrations":{"startedAt":"2026-06-17T10:56:41.310Z","durationMs":23120,"target":"apps/leadconnector-integrations/src/locales/en.json","findings":{"errors":2,"warnings":87,"concat":0,"llmFindings":5},"llm":{"enabled":true,"calls":34,"totalTokens":39546,"estimatedCostUsd":0.0612164}}}},
+  "2026-06-17T10:57:04.722Z":{"ghl-crm-frontend":{"marketplace":{"startedAt":"2026-06-17T10:57:04.722Z","durationMs":161442,"target":"apps/marketplace/src/locales/en_US.json","findings":{"errors":6,"warnings":599,"concat":10,"llmFindings":65},"llm":{"enabled":true,"calls":407,"totalTokens":462478,"estimatedCostUsd":0.706625}}}},
+  "2026-06-17T10:59:46.452Z":{"ghl-crm-frontend":{"opportunities":{"startedAt":"2026-06-17T10:59:46.452Z","durationMs":171542,"target":"apps/opportunities/src/locales/en_US.json","findings":{"errors":6,"warnings":164,"concat":4,"llmFindings":51},"llm":{"enabled":true,"calls":412,"totalTokens":453857,"estimatedCostUsd":0.6941827}}}},
+  "2026-06-17T11:02:38.628Z":{"ghl-crm-frontend":{"preference-management":{"startedAt":"2026-06-17T11:02:38.628Z","durationMs":25854,"target":"apps/preference-management/src/locales/en_US.json","findings":{"errors":3,"warnings":33,"concat":0,"llmFindings":9},"llm":{"enabled":true,"calls":45,"totalTokens":51276,"estimatedCostUsd":0.0814554}}}},
+  "2026-06-17T11:03:04.782Z":{"ghl-crm-frontend":{"agent-logs":{"startedAt":"2026-06-17T11:03:04.782Z","durationMs":8841,"target":"apps/record-components/agent-logs/src/locales/en.json","findings":{"errors":0,"warnings":1,"concat":0,"llmFindings":0},"llm":{"enabled":true,"calls":4,"totalTokens":4362,"estimatedCostUsd":0.0063752}}}},
+  "2026-06-17T11:03:13.908Z":{"ghl-crm-frontend":{"appointments":{"startedAt":"2026-06-17T11:03:13.908Z","durationMs":9520,"target":"apps/record-components/appointments/src/locales/en.json","findings":{"errors":1,"warnings":13,"concat":0,"llmFindings":1},"llm":{"enabled":true,"calls":10,"totalTokens":10204,"estimatedCostUsd":0.014543}}}},
+  "2026-06-17T11:03:23.719Z":{"ghl-crm-frontend":{"contact-activity":{"startedAt":"2026-06-17T11:03:23.719Z","durationMs":33432,"target":"apps/record-components/contact-activity/src/locales/en.json","findings":{"errors":1,"warnings":6,"concat":4,"llmFindings":20},"llm":{"enabled":true,"calls":72,"totalTokens":78250,"estimatedCostUsd":0.1256892}}}},
+  "2026-06-17T11:03:57.445Z":{"ghl-crm-frontend":{"documents":{"startedAt":"2026-06-17T11:03:57.445Z","durationMs":26328,"target":"apps/record-components/documents/src/locales/en.json","findings":{"errors":1,"warnings":6,"concat":0,"llmFindings":4},"llm":{"enabled":true,"calls":68,"totalTokens":67061,"estimatedCostUsd":0.0967047}}}},
+  "2026-06-17T11:04:24.087Z":{"ghl-crm-frontend":{"manual-action":{"startedAt":"2026-06-17T11:04:24.087Z","durationMs":6193,"target":"apps/record-components/manual-action/locales/en.json","findings":{"errors":0,"warnings":1,"concat":0,"llmFindings":0},"llm":{"enabled":true,"calls":1,"totalTokens":1075,"estimatedCostUsd":0.0015567}}}},
+  "2026-06-17T11:04:30.599Z":{"ghl-crm-frontend":{"payments":{"startedAt":"2026-06-17T11:04:30.599Z","durationMs":6762,"target":"apps/record-components/payments/locales/en.json","findings":{"errors":0,"warnings":0,"concat":0,"llmFindings":1},"llm":{"enabled":true,"calls":3,"totalTokens":2640,"estimatedCostUsd":0.0037554}}}},
+  "2026-06-17T11:04:37.648Z":{"ghl-crm-frontend":{"record-details":{"startedAt":"2026-06-17T11:04:37.648Z","durationMs":96742,"target":"apps/record-components/record-details/locales/en.json","findings":{"errors":1,"warnings":69,"concat":0,"llmFindings":23},"llm":{"enabled":true,"calls":226,"totalTokens":259611,"estimatedCostUsd":0.3998599}}}},
+  "2026-06-17T11:06:14.973Z":{"ghl-crm-frontend":{"right-sidebar":{"startedAt":"2026-06-17T11:06:14.973Z","durationMs":10626,"target":"apps/record-components/right-sidebar/locales/en.json","findings":{"errors":0,"warnings":5,"concat":0,"llmFindings":1},"llm":{"enabled":true,"calls":18,"totalTokens":18296,"estimatedCostUsd":0.0268156}}}},
+  "2026-06-17T11:06:26.182Z":{"ghl-crm-frontend":{"rollup":{"startedAt":"2026-06-17T11:06:26.182Z","durationMs":7731,"target":"apps/rollup/src/locales/en.json","findings":{"errors":0,"warnings":6,"concat":0,"llmFindings":2},"llm":{"enabled":true,"calls":5,"totalTokens":5473,"estimatedCostUsd":0.0091461}}}},
+  "2026-06-17T11:06:34.491Z":{"ghl-crm-frontend":{"settings":{"startedAt":"2026-06-17T11:06:34.491Z","durationMs":290257,"target":"apps/settings/src/locales/en_US.json","findings":{"errors":12,"warnings":637,"concat":14,"llmFindings":75},"llm":{"enabled":true,"calls":733,"totalTokens":829675,"estimatedCostUsd":1.2580073}}}},
+  "2026-06-17T11:11:25.344Z":{"ghl-crm-frontend":{"users":{"startedAt":"2026-06-17T11:11:25.344Z","durationMs":42225,"target":"apps/users/src/locales/en_US.json","findings":{"errors":3,"warnings":148,"concat":0,"llmFindings":23},"llm":{"enabled":true,"calls":81,"totalTokens":98540,"estimatedCostUsd":0.1615598}}}},
+  "2026-06-17T11:12:08.137Z":{"ghl-crm-frontend":{"voice-ai":{"startedAt":"2026-06-17T11:12:08.137Z","durationMs":425562,"target":"apps/voice-ai/src/locales/en_US.json","findings":{"errors":3,"warnings":849,"concat":12,"llmFindings":159},"llm":{"enabled":true,"calls":997,"totalTokens":1169382,"estimatedCostUsd":1.835588}}}},
+  "2026-06-17T11:21:54.398Z":{"ghl-crm-frontend":{"users":{"startedAt":"2026-06-17T11:21:54.398Z","durationMs":264,"target":"apps/users/src/locales/en_US.json","findings":{"errors":3,"warnings":148,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:52:52.741Z":{"ghl-revex-frontend":{"agency-dashboard":{"startedAt":"2026-06-18T14:52:52.741Z","durationMs":252,"target":"apps/agency-dashboard/src/locales/en.json","findings":{"errors":0,"warnings":70,"concat":8,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:56:20.592Z":{"ghl-seo-app":{"seoApp":{"startedAt":"2026-06-18T14:56:20.592Z","durationMs":270,"target":"apps/seoApp/src/locales/en_US.json","findings":{"errors":2,"warnings":169,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:36.418Z":{"ghl-crm-frontend":{"custom-objects":{"startedAt":"2026-06-18T14:59:36.418Z","durationMs":457,"target":"apps/custom-objects/src/locales/en.json","findings":{"errors":3,"warnings":40,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:37.447Z":{"ghl-crm-frontend":{"bulk-actions":{"startedAt":"2026-06-18T14:59:37.447Z","durationMs":889,"target":"apps/bulk-actions/src/locales/en_US.json","findings":{"errors":11,"warnings":111,"concat":3,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:38.663Z":{"ghl-crm-frontend":{"labs":{"startedAt":"2026-06-18T14:59:38.663Z","durationMs":129,"target":"apps/labs/src/locales/en.json","findings":{"errors":1,"warnings":30,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:39.104Z":{"ghl-crm-frontend":{"conversations":{"startedAt":"2026-06-18T14:59:39.104Z","durationMs":70,"target":"apps/conversations/src/locales/en.json","findings":{"errors":0,"warnings":4,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:39.472Z":{"ghl-crm-frontend":{"conversations-new-ui":{"startedAt":"2026-06-18T14:59:39.472Z","durationMs":985,"target":"apps/conversations-new-ui/src/locales/en.json","findings":{"errors":13,"warnings":597,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:40.768Z":{"ghl-crm-frontend":{"settings":{"startedAt":"2026-06-18T14:59:40.768Z","durationMs":922,"target":"apps/settings/src/locales/en_US.json","findings":{"errors":12,"warnings":626,"concat":14,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:41.999Z":{"ghl-crm-frontend":{"contacts-highrise":{"startedAt":"2026-06-18T14:59:41.999Z","durationMs":328,"target":"apps/contacts-highrise/src/locales/en.json","findings":{"errors":2,"warnings":76,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:42.630Z":{"ghl-crm-frontend":{"opportunities":{"startedAt":"2026-06-18T14:59:42.630Z","durationMs":955,"target":"apps/opportunities/src/locales/en_US.json","findings":{"errors":6,"warnings":164,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:43.885Z":{"ghl-crm-frontend":{"integrations":{"startedAt":"2026-06-18T14:59:43.885Z","durationMs":453,"target":"apps/integrations/src/locales/en_US.json","findings":{"errors":7,"warnings":339,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:44.642Z":{"ghl-crm-frontend":{"contacts":{"startedAt":"2026-06-18T14:59:44.642Z","durationMs":422,"target":"apps/contacts/src/locales/en.json","findings":{"errors":7,"warnings":35,"concat":5,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:45.376Z":{"ghl-crm-frontend":{"marketplace":{"startedAt":"2026-06-18T14:59:45.376Z","durationMs":847,"target":"apps/marketplace/src/locales/en_US.json","findings":{"errors":6,"warnings":598,"concat":10,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:46.530Z":{"ghl-crm-frontend":{"voice-ai":{"startedAt":"2026-06-18T14:59:46.530Z","durationMs":1106,"target":"apps/voice-ai/src/locales/en_US.json","findings":{"errors":3,"warnings":841,"concat":12,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:47.943Z":{"ghl-crm-frontend":{"payments":{"startedAt":"2026-06-18T14:59:47.943Z","durationMs":53,"target":"apps/record-components/payments/locales/en.json","findings":{"errors":0,"warnings":0,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:48.297Z":{"ghl-crm-frontend":{"conversations-components":{"startedAt":"2026-06-18T14:59:48.297Z","durationMs":909,"target":"apps/conversations-components/src/locales/en.json","findings":{"errors":6,"warnings":99,"concat":2,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:49.531Z":{"ghl-crm-frontend":{"record-details":{"startedAt":"2026-06-18T14:59:49.531Z","durationMs":482,"target":"apps/record-components/record-details/locales/en.json","findings":{"errors":1,"warnings":69,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:50.316Z":{"ghl-crm-frontend":{"manual-action":{"startedAt":"2026-06-18T14:59:50.316Z","durationMs":93,"target":"apps/record-components/manual-action/locales/en.json","findings":{"errors":0,"warnings":1,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:50.704Z":{"ghl-crm-frontend":{"right-sidebar":{"startedAt":"2026-06-18T14:59:50.704Z","durationMs":98,"target":"apps/record-components/right-sidebar/locales/en.json","findings":{"errors":0,"warnings":5,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:51.094Z":{"ghl-crm-frontend":{"auth":{"startedAt":"2026-06-18T14:59:51.094Z","durationMs":93,"target":"apps/auth/src/locales/en-US.json","findings":{"errors":0,"warnings":11,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:51.492Z":{"ghl-crm-frontend":{"ai-employees":{"startedAt":"2026-06-18T14:59:51.492Z","durationMs":909,"target":"apps/ai-employees/src/locales/en.json","findings":{"errors":14,"warnings":1336,"concat":5,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:52.715Z":{"ghl-crm-frontend":{"users":{"startedAt":"2026-06-18T14:59:52.715Z","durationMs":245,"target":"apps/users/src/locales/en_US.json","findings":{"errors":3,"warnings":148,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:53.271Z":{"ghl-crm-frontend":{"rollup":{"startedAt":"2026-06-18T14:59:53.271Z","durationMs":230,"target":"apps/rollup/src/locales/en.json","findings":{"errors":0,"warnings":6,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:53.810Z":{"ghl-crm-frontend":{"leadconnector-integrations":{"startedAt":"2026-06-18T14:59:53.810Z","durationMs":189,"target":"apps/leadconnector-integrations/src/locales/en.json","findings":{"errors":2,"warnings":88,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:54.304Z":{"ghl-crm-frontend":{"conversations-utilities":{"startedAt":"2026-06-18T14:59:54.304Z","durationMs":385,"target":"apps/conversations-utilities/src/locales/en_US.json","findings":{"errors":6,"warnings":170,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:54.991Z":{"ghl-crm-frontend":{"preference-management":{"startedAt":"2026-06-18T14:59:54.991Z","durationMs":129,"target":"apps/preference-management/src/locales/en_US.json","findings":{"errors":3,"warnings":33,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:55.437Z":{"ghl-crm-frontend":{"events-management":{"startedAt":"2026-06-18T14:59:55.437Z","durationMs":862,"target":"apps/events-management/src/locales/en.json","findings":{"errors":6,"warnings":365,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:56.601Z":{"ghl-crm-frontend":{"documents":{"startedAt":"2026-06-18T14:59:56.601Z","durationMs":173,"target":"apps/documents/src/locales/en.json","findings":{"errors":1,"warnings":61,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:57.076Z":{"ghl-crm-frontend":{"custom-fields":{"startedAt":"2026-06-18T14:59:57.076Z","durationMs":113,"target":"apps/custom-fields/src/locales/en.json","findings":{"errors":0,"warnings":47,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:57.486Z":{"ghl-crm-frontend":{"crm-objects-settings":{"startedAt":"2026-06-18T14:59:57.486Z","durationMs":515,"target":"apps/crm-objects-settings/src/locales/en_US.json","findings":{"errors":4,"warnings":33,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:58.307Z":{"ghl-crm-frontend":{"appointments":{"startedAt":"2026-06-18T14:59:58.307Z","durationMs":113,"target":"apps/record-components/appointments/src/locales/en.json","findings":{"errors":1,"warnings":13,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:58.715Z":{"ghl-crm-frontend":{"contact-activity":{"startedAt":"2026-06-18T14:59:58.715Z","durationMs":182,"target":"apps/record-components/contact-activity/src/locales/en.json","findings":{"errors":1,"warnings":6,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:59.205Z":{"ghl-crm-frontend":{"agent-logs":{"startedAt":"2026-06-18T14:59:59.205Z","durationMs":78,"target":"apps/record-components/agent-logs/src/locales/en.json","findings":{"errors":0,"warnings":1,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T14:59:59.581Z":{"ghl-crm-frontend":{"documents":{"startedAt":"2026-06-18T14:59:59.581Z","durationMs":178,"target":"apps/record-components/documents/src/locales/en.json","findings":{"errors":1,"warnings":6,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:00:00.066Z":{"ghl-crm-frontend":{"locales":{"startedAt":"2026-06-18T15:00:00.066Z","durationMs":275,"target":"apps/rollup/src/locales/lan/en-US.json","findings":{"errors":5,"warnings":11,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:40.981Z":{"ghl-crm-frontend":{"labs":{"startedAt":"2026-06-18T15:04:40.981Z","durationMs":217,"target":"apps/labs/src/locales/en.json","findings":{"errors":1,"warnings":30,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:41.767Z":{"ghl-crm-frontend":{"custom-objects":{"startedAt":"2026-06-18T15:04:41.767Z","durationMs":415,"target":"apps/custom-objects/src/locales/en.json","findings":{"errors":3,"warnings":40,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:42.483Z":{"ghl-crm-frontend":{"auth":{"startedAt":"2026-06-18T15:04:42.483Z","durationMs":92,"target":"apps/auth/src/locales/en-US.json","findings":{"errors":0,"warnings":11,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:42.873Z":{"ghl-crm-frontend":{"ai-employees":{"startedAt":"2026-06-18T15:04:42.873Z","durationMs":898,"target":"apps/ai-employees/src/locales/en.json","findings":{"errors":13,"warnings":1334,"concat":5,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:44.075Z":{"ghl-crm-frontend":{"conversations-components":{"startedAt":"2026-06-18T15:04:44.075Z","durationMs":879,"target":"apps/conversations-components/src/locales/en.json","findings":{"errors":5,"warnings":99,"concat":2,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:45.276Z":{"ghl-crm-frontend":{"users":{"startedAt":"2026-06-18T15:04:45.276Z","durationMs":230,"target":"apps/users/src/locales/en_US.json","findings":{"errors":2,"warnings":148,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:45.813Z":{"ghl-crm-frontend":{"rollup":{"startedAt":"2026-06-18T15:04:45.813Z","durationMs":230,"target":"apps/rollup/src/locales/en.json","findings":{"errors":0,"warnings":6,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:46.352Z":{"ghl-crm-frontend":{"preference-management":{"startedAt":"2026-06-18T15:04:46.352Z","durationMs":128,"target":"apps/preference-management/src/locales/en_US.json","findings":{"errors":2,"warnings":33,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:46.783Z":{"ghl-crm-frontend":{"bulk-actions":{"startedAt":"2026-06-18T15:04:46.783Z","durationMs":685,"target":"apps/bulk-actions/src/locales/en_US.json","findings":{"errors":11,"warnings":111,"concat":3,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:47.766Z":{"ghl-crm-frontend":{"conversations-new-ui":{"startedAt":"2026-06-18T15:04:47.766Z","durationMs":944,"target":"apps/conversations-new-ui/src/locales/en.json","findings":{"errors":12,"warnings":597,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:49.009Z":{"ghl-crm-frontend":{"contacts":{"startedAt":"2026-06-18T15:04:49.009Z","durationMs":416,"target":"apps/contacts/src/locales/en.json","findings":{"errors":6,"warnings":35,"concat":5,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:49.720Z":{"ghl-crm-frontend":{"events-management":{"startedAt":"2026-06-18T15:04:49.720Z","durationMs":870,"target":"apps/events-management/src/locales/en.json","findings":{"errors":5,"warnings":365,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:50.890Z":{"ghl-crm-frontend":{"documents":{"startedAt":"2026-06-18T15:04:50.890Z","durationMs":173,"target":"apps/documents/src/locales/en.json","findings":{"errors":1,"warnings":61,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:51.363Z":{"ghl-crm-frontend":{"custom-fields":{"startedAt":"2026-06-18T15:04:51.363Z","durationMs":121,"target":"apps/custom-fields/src/locales/en.json","findings":{"errors":0,"warnings":47,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:51.779Z":{"ghl-crm-frontend":{"marketplace":{"startedAt":"2026-06-18T15:04:51.779Z","durationMs":806,"target":"apps/marketplace/src/locales/en_US.json","findings":{"errors":4,"warnings":598,"concat":10,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:52.882Z":{"ghl-crm-frontend":{"crm-objects-settings":{"startedAt":"2026-06-18T15:04:52.882Z","durationMs":510,"target":"apps/crm-objects-settings/src/locales/en_US.json","findings":{"errors":4,"warnings":33,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:53.686Z":{"ghl-crm-frontend":{"leadconnector-integrations":{"startedAt":"2026-06-18T15:04:53.686Z","durationMs":190,"target":"apps/leadconnector-integrations/src/locales/en.json","findings":{"errors":2,"warnings":88,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:54.186Z":{"ghl-crm-frontend":{"conversations-utilities":{"startedAt":"2026-06-18T15:04:54.186Z","durationMs":385,"target":"apps/conversations-utilities/src/locales/en_US.json","findings":{"errors":2,"warnings":170,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:54.891Z":{"ghl-crm-frontend":{"payments":{"startedAt":"2026-06-18T15:04:54.891Z","durationMs":55,"target":"apps/record-components/payments/locales/en.json","findings":{"errors":0,"warnings":0,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:55.261Z":{"ghl-crm-frontend":{"record-details":{"startedAt":"2026-06-18T15:04:55.261Z","durationMs":472,"target":"apps/record-components/record-details/locales/en.json","findings":{"errors":1,"warnings":69,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:56.023Z":{"ghl-crm-frontend":{"manual-action":{"startedAt":"2026-06-18T15:04:56.023Z","durationMs":94,"target":"apps/record-components/manual-action/locales/en.json","findings":{"errors":0,"warnings":1,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:56.409Z":{"ghl-crm-frontend":{"right-sidebar":{"startedAt":"2026-06-18T15:04:56.409Z","durationMs":100,"target":"apps/record-components/right-sidebar/locales/en.json","findings":{"errors":0,"warnings":5,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:56.800Z":{"ghl-crm-frontend":{"voice-ai":{"startedAt":"2026-06-18T15:04:56.800Z","durationMs":1073,"target":"apps/voice-ai/src/locales/en_US.json","findings":{"errors":3,"warnings":841,"concat":12,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:58.171Z":{"ghl-crm-frontend":{"integrations":{"startedAt":"2026-06-18T15:04:58.171Z","durationMs":449,"target":"apps/integrations/src/locales/en_US.json","findings":{"errors":6,"warnings":339,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:58.918Z":{"ghl-crm-frontend":{"conversations":{"startedAt":"2026-06-18T15:04:58.918Z","durationMs":72,"target":"apps/conversations/src/locales/en.json","findings":{"errors":0,"warnings":4,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:04:59.287Z":{"ghl-crm-frontend":{"settings":{"startedAt":"2026-06-18T15:04:59.287Z","durationMs":896,"target":"apps/settings/src/locales/en_US.json","findings":{"errors":11,"warnings":626,"concat":14,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:05:00.481Z":{"ghl-crm-frontend":{"contacts-highrise":{"startedAt":"2026-06-18T15:05:00.481Z","durationMs":319,"target":"apps/contacts-highrise/src/locales/en.json","findings":{"errors":2,"warnings":76,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:05:01.094Z":{"ghl-crm-frontend":{"opportunities":{"startedAt":"2026-06-18T15:05:01.094Z","durationMs":916,"target":"apps/opportunities/src/locales/en_US.json","findings":{"errors":4,"warnings":164,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:05:02.307Z":{"ghl-crm-frontend":{"locales":{"startedAt":"2026-06-18T15:05:02.307Z","durationMs":261,"target":"apps/rollup/src/locales/lan/en-US.json","findings":{"errors":4,"warnings":11,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:05:02.868Z":{"ghl-crm-frontend":{"agent-logs":{"startedAt":"2026-06-18T15:05:02.868Z","durationMs":78,"target":"apps/record-components/agent-logs/src/locales/en.json","findings":{"errors":0,"warnings":1,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:05:03.241Z":{"ghl-crm-frontend":{"appointments":{"startedAt":"2026-06-18T15:05:03.241Z","durationMs":111,"target":"apps/record-components/appointments/src/locales/en.json","findings":{"errors":1,"warnings":13,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:05:03.641Z":{"ghl-crm-frontend":{"contact-activity":{"startedAt":"2026-06-18T15:05:03.641Z","durationMs":172,"target":"apps/record-components/contact-activity/src/locales/en.json","findings":{"errors":1,"warnings":6,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:05:04.121Z":{"ghl-crm-frontend":{"documents":{"startedAt":"2026-06-18T15:05:04.121Z","durationMs":178,"target":"apps/record-components/documents/src/locales/en.json","findings":{"errors":1,"warnings":6,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:05:58.701Z":{"ghl-revex-frontend":{"phone-integration":{"startedAt":"2026-06-18T15:05:58.701Z","durationMs":1753,"target":"apps/phone-integration/src/locales/en.json","findings":{"errors":31,"warnings":2665,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:00.765Z":{"ghl-revex-frontend":{"saas":{"startedAt":"2026-06-18T15:06:00.765Z","durationMs":593,"target":"apps/saas/src/locales/en.json","findings":{"errors":4,"warnings":157,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:01.661Z":{"ghl-revex-frontend":{"clientportal-preview":{"startedAt":"2026-06-18T15:06:01.661Z","durationMs":357,"target":"apps/clientportal-preview/src/locales/en.json","findings":{"errors":2,"warnings":143,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:02.318Z":{"ghl-revex-frontend":{"clientportal-builder":{"startedAt":"2026-06-18T15:06:02.318Z","durationMs":339,"target":"apps/clientportal-builder/src/locales/en.json","findings":{"errors":12,"warnings":541,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:02.952Z":{"ghl-revex-frontend":{"company":{"startedAt":"2026-06-18T15:06:02.952Z","durationMs":252,"target":"apps/company/src/locales/en.json","findings":{"errors":4,"warnings":360,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:03.515Z":{"ghl-revex-frontend":{"wallet-kit":{"startedAt":"2026-06-18T15:06:03.515Z","durationMs":108,"target":"apps/wallet-kit/src/locales/en-US.json","findings":{"errors":0,"warnings":12,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:03.920Z":{"ghl-revex-frontend":{"certificates-builder":{"startedAt":"2026-06-18T15:06:03.920Z","durationMs":473,"target":"apps/certificates-builder/src/locales/en.json","findings":{"errors":2,"warnings":158,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:04.692Z":{"ghl-revex-frontend":{"power-dialer":{"startedAt":"2026-06-18T15:06:04.692Z","durationMs":368,"target":"apps/power-dialer/src/locales/en.json","findings":{"errors":0,"warnings":135,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:05.356Z":{"ghl-revex-frontend":{"reselling":{"startedAt":"2026-06-18T15:06:05.356Z","durationMs":443,"target":"apps/reselling/src/locales/en-US.json","findings":{"errors":0,"warnings":229,"concat":8,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:06.098Z":{"ghl-revex-frontend":{"lc-email-ui":{"startedAt":"2026-06-18T15:06:06.098Z","durationMs":85,"target":"apps/lc-email-ui/src/locales/en.json","findings":{"errors":0,"warnings":21,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:06.477Z":{"ghl-revex-frontend":{"locales":{"startedAt":"2026-06-18T15:06:06.477Z","durationMs":446,"target":"apps/reselling/src/locales/remote/en-US.json","findings":{"errors":4,"warnings":311,"concat":8,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:07.224Z":{"ghl-revex-frontend":{"affiliate-portal":{"startedAt":"2026-06-18T15:06:07.224Z","durationMs":177,"target":"apps/affiliate-portal/src/locales/en.json","findings":{"errors":0,"warnings":109,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:07.703Z":{"ghl-revex-frontend":{"membership-settings":{"startedAt":"2026-06-18T15:06:07.703Z","durationMs":245,"target":"apps/membership-settings/src/locales/en.json","findings":{"errors":1,"warnings":46,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:08.250Z":{"ghl-revex-frontend":{"visibility-ai":{"startedAt":"2026-06-18T15:06:08.250Z","durationMs":409,"target":"apps/visibility-ai/src/locales/en.json","findings":{"errors":1,"warnings":255,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:08.960Z":{"ghl-revex-frontend":{"reputation":{"startedAt":"2026-06-18T15:06:08.960Z","durationMs":691,"target":"apps/reputation/src/locales/en-US.json","findings":{"errors":3,"warnings":690,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:09.972Z":{"ghl-revex-frontend":{"assets-drm-preview":{"startedAt":"2026-06-18T15:06:09.972Z","durationMs":97,"target":"apps/assets-drm-preview/src/locales/en.json","findings":{"errors":1,"warnings":20,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:10.366Z":{"ghl-revex-frontend":{"snapshots":{"startedAt":"2026-06-18T15:06:10.366Z","durationMs":437,"target":"apps/snapshots/src/locales/en.json","findings":{"errors":1,"warnings":16,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:11.110Z":{"ghl-revex-frontend":{"locales":{"startedAt":"2026-06-18T15:06:11.110Z","durationMs":572,"target":"apps/blade-platform/src/locales/lang/en.json","findings":{"errors":3,"warnings":257,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:12.001Z":{"ghl-revex-frontend":{"membership-analytics":{"startedAt":"2026-06-18T15:06:12.001Z","durationMs":60,"target":"apps/membership-analytics/src/locales/en.json","findings":{"errors":0,"warnings":0,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:12.359Z":{"ghl-revex-frontend":{"desktop-customizer":{"startedAt":"2026-06-18T15:06:12.359Z","durationMs":175,"target":"apps/desktop-customizer/src/locales/en.json","findings":{"errors":0,"warnings":17,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:12.836Z":{"ghl-revex-frontend":{"memberships":{"startedAt":"2026-06-18T15:06:12.836Z","durationMs":1195,"target":"apps/memberships/src/locales/en.json","findings":{"errors":29,"warnings":1461,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:14.335Z":{"ghl-revex-frontend":{"locations":{"startedAt":"2026-06-18T15:06:14.335Z","durationMs":754,"target":"apps/locations/src/locales/en.json","findings":{"errors":9,"warnings":728,"concat":4,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:15.389Z":{"ghl-revex-frontend":{"kollab-support":{"startedAt":"2026-06-18T15:06:15.389Z","durationMs":147,"target":"apps/kollab-support/src/locales/en.json","findings":{"errors":0,"warnings":0,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:15.840Z":{"ghl-revex-frontend":{"gokollab-preview":{"startedAt":"2026-06-18T15:06:15.840Z","durationMs":772,"target":"apps/gokollab-preview/src/locales/en.json","findings":{"errors":16,"warnings":1530,"concat":6,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:16.914Z":{"ghl-revex-frontend":{"gokollab-builder":{"startedAt":"2026-06-18T15:06:16.914Z","durationMs":140,"target":"apps/gokollab-builder/src/locales/en.json","findings":{"errors":0,"warnings":53,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:17.358Z":{"ghl-revex-frontend":{"location-billing":{"startedAt":"2026-06-18T15:06:17.358Z","durationMs":352,"target":"apps/location-billing/src/locales/en.json","findings":{"errors":13,"warnings":511,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:18.010Z":{"ghl-revex-frontend":{"platform-billing":{"startedAt":"2026-06-18T15:06:18.010Z","durationMs":740,"target":"apps/platform-billing/src/locales/en.json","findings":{"errors":37,"warnings":1190,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:19.052Z":{"ghl-revex-frontend":{"email-isv":{"startedAt":"2026-06-18T15:06:19.052Z","durationMs":204,"target":"apps/email-isv/src/locales/en.json","findings":{"errors":1,"warnings":190,"concat":1,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:19.565Z":{"ghl-revex-frontend":{"agency-dashboard":{"startedAt":"2026-06-18T15:06:19.565Z","durationMs":254,"target":"apps/agency-dashboard/src/locales/en.json","findings":{"errors":0,"warnings":70,"concat":8,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:20.122Z":{"ghl-revex-frontend":{"communities-preview":{"startedAt":"2026-06-18T15:06:20.122Z","durationMs":969,"target":"apps/communities-preview/src/locales/en.json","findings":{"errors":4,"warnings":647,"concat":7,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:21.397Z":{"ghl-revex-frontend":{"wordpress":{"startedAt":"2026-06-18T15:06:21.397Z","durationMs":606,"target":"apps/wordpress/src/locales/en.json","findings":{"errors":5,"warnings":202,"concat":21,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:22.303Z":{"ghl-revex-frontend":{"communities-builder":{"startedAt":"2026-06-18T15:06:22.303Z","durationMs":153,"target":"apps/communities-builder/src/locales/en.json","findings":{"errors":0,"warnings":58,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:06:22.755Z":{"ghl-revex-frontend":{"agency-internaltools":{"startedAt":"2026-06-18T15:06:22.755Z","durationMs":225,"target":"apps/agency-internaltools/src/locales/en-US.json","findings":{"errors":5,"warnings":153,"concat":0,"llmFindings":0},"llm":{"enabled":false,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T15:16:51.600Z":{"ghl-revex-frontend":{"wallet-kit":{"startedAt":"2026-06-18T15:16:51.600Z","durationMs":23419,"target":"apps/wallet-kit/src/locales/en-US.json","findings":{"errors":0,"warnings":12,"concat":0,"llmFindings":1},"llm":{"enabled":true,"calls":14,"totalTokens":14794,"estimatedCostUsd":0.0220668}}}},
+  "2026-06-18T15:18:41.226Z":{"ghl-revex-frontend":{"affiliate-portal":{"startedAt":"2026-06-18T15:18:41.226Z","durationMs":40923,"target":"apps/affiliate-portal/src/locales/en.json","findings":{"errors":0,"warnings":109,"concat":0,"llmFindings":5},"llm":{"enabled":true,"calls":30,"totalTokens":31374,"estimatedCostUsd":0.0478044}}}},
+  "2026-06-18T15:19:22.499Z":{"ghl-revex-frontend":{"agency-dashboard":{"startedAt":"2026-06-18T15:19:22.499Z","durationMs":52677,"target":"apps/agency-dashboard/src/locales/en.json","findings":{"errors":0,"warnings":70,"concat":8,"llmFindings":5},"llm":{"enabled":true,"calls":42,"totalTokens":45409,"estimatedCostUsd":0.0661741}}}},
+  "2026-06-18T15:20:15.521Z":{"ghl-revex-frontend":{"agency-internaltools":{"startedAt":"2026-06-18T15:20:15.521Z","durationMs":170135,"target":"apps/agency-internaltools/src/locales/en-US.json","findings":{"errors":5,"warnings":153,"concat":0,"llmFindings":31},"llm":{"enabled":true,"calls":114,"totalTokens":140013,"estimatedCostUsd":0.2296969}}}},
+  "2026-06-18T15:23:06.574Z":{"ghl-revex-frontend":{"assets-drm-preview":{"startedAt":"2026-06-18T15:23:06.574Z","durationMs":17021,"target":"apps/assets-drm-preview/src/locales/en.json","findings":{"errors":1,"warnings":20,"concat":0,"llmFindings":1},"llm":{"enabled":true,"calls":10,"totalTokens":11111,"estimatedCostUsd":0.0175233}}}},
+  "2026-06-18T15:23:23.936Z":{"ghl-revex-frontend":{"locales":{"startedAt":"2026-06-18T15:23:23.936Z","durationMs":335874,"target":"apps/blade-platform/src/locales/lang/en.json","findings":{"errors":3,"warnings":257,"concat":0,"llmFindings":33},"llm":{"enabled":true,"calls":279,"totalTokens":304351,"estimatedCostUsd":0.4547585}}}},
+  "2026-06-18T15:29:00.743Z":{"ghl-revex-frontend":{"certificates-builder":{"startedAt":"2026-06-18T15:29:00.743Z","durationMs":170123,"target":"apps/certificates-builder/src/locales/en.json","findings":{"errors":2,"warnings":158,"concat":0,"llmFindings":38},"llm":{"enabled":true,"calls":139,"totalTokens":145885,"estimatedCostUsd":0.2288493}}}},
+  "2026-06-18T15:31:51.783Z":{"ghl-revex-frontend":{"clientportal-builder":{"startedAt":"2026-06-18T15:31:51.783Z","durationMs":393810,"target":"apps/clientportal-builder/src/locales/en.json","findings":{"errors":12,"warnings":541,"concat":0,"llmFindings":61},"llm":{"enabled":true,"calls":304,"totalTokens":337641,"estimatedCostUsd":0.5186609}}}},
+  "2026-06-18T15:38:26.466Z":{"ghl-revex-frontend":{"clientportal-preview":{"startedAt":"2026-06-18T15:38:26.466Z","durationMs":219626,"target":"apps/clientportal-preview/src/locales/en.json","findings":{"errors":2,"warnings":143,"concat":4,"llmFindings":15},"llm":{"enabled":true,"calls":164,"totalTokens":180777,"estimatedCostUsd":0.2720991}}}},
+  "2026-06-18T15:42:06.457Z":{"ghl-revex-frontend":{"communities-builder":{"startedAt":"2026-06-18T15:42:06.457Z","durationMs":68810,"target":"apps/communities-builder/src/locales/en.json","findings":{"errors":0,"warnings":58,"concat":0,"llmFindings":12},"llm":{"enabled":true,"calls":50,"totalTokens":52927,"estimatedCostUsd":0.0827911}}}},
+  "2026-06-18T15:43:16.102Z":{"ghl-revex-frontend":{"communities-preview":{"startedAt":"2026-06-18T15:43:16.102Z","durationMs":577271,"target":"apps/communities-preview/src/locales/en.json","findings":{"errors":4,"warnings":647,"concat":7,"llmFindings":91},"llm":{"enabled":true,"calls":492,"totalTokens":517940,"estimatedCostUsd":0.7847404}}}},
+  "2026-06-18T15:52:54.186Z":{"ghl-revex-frontend":{"company":{"startedAt":"2026-06-18T15:52:54.186Z","durationMs":180620,"target":"apps/company/src/locales/en.json","findings":{"errors":4,"warnings":360,"concat":0,"llmFindings":23},"llm":{"enabled":true,"calls":138,"totalTokens":157434,"estimatedCostUsd":0.2392066}}}},
+  "2026-06-18T15:55:55.425Z":{"ghl-revex-frontend":{"desktop-customizer":{"startedAt":"2026-06-18T15:55:55.425Z","durationMs":85635,"target":"apps/desktop-customizer/src/locales/en.json","findings":{"errors":0,"warnings":17,"concat":0,"llmFindings":5},"llm":{"enabled":true,"calls":73,"totalTokens":73387,"estimatedCostUsd":0.1090987}}}},
+  "2026-06-18T15:57:21.372Z":{"ghl-revex-frontend":{"email-isv":{"startedAt":"2026-06-18T15:57:21.372Z","durationMs":81643,"target":"apps/email-isv/src/locales/en.json","findings":{"errors":1,"warnings":190,"concat":1,"llmFindings":12},"llm":{"enabled":true,"calls":62,"totalTokens":70431,"estimatedCostUsd":0.1073297}}}},
+  "2026-06-18T15:58:43.891Z":{"ghl-revex-frontend":{"gokollab-builder":{"startedAt":"2026-06-18T15:58:43.891Z","durationMs":66712,"target":"apps/gokollab-builder/src/locales/en.json","findings":{"errors":0,"warnings":53,"concat":1,"llmFindings":14},"llm":{"enabled":true,"calls":55,"totalTokens":58547,"estimatedCostUsd":0.0895679}}}},
+  "2026-06-18T15:59:51.466Z":{"ghl-revex-frontend":{"gokollab-preview":{"startedAt":"2026-06-18T15:59:51.466Z","durationMs":529048,"target":"apps/gokollab-preview/src/locales/en.json","findings":{"errors":16,"warnings":1530,"concat":6,"llmFindings":30},"llm":{"enabled":true,"calls":483,"totalTokens":467346,"estimatedCostUsd":0.6678738}}}},
+  "2026-06-18T16:08:41.167Z":{"ghl-revex-frontend":{"kollab-support":{"startedAt":"2026-06-18T16:08:41.167Z","durationMs":203,"target":"apps/kollab-support/src/locales/en.json","findings":{"errors":0,"warnings":0,"concat":0,"llmFindings":0},"llm":{"enabled":true,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T16:08:41.941Z":{"ghl-revex-frontend":{"lc-email-ui":{"startedAt":"2026-06-18T16:08:41.941Z","durationMs":14637,"target":"apps/lc-email-ui/src/locales/en.json","findings":{"errors":0,"warnings":21,"concat":0,"llmFindings":1},"llm":{"enabled":true,"calls":2,"totalTokens":2631,"estimatedCostUsd":0.0042301}}}},
+  "2026-06-18T16:08:56.892Z":{"ghl-revex-frontend":{"location-billing":{"startedAt":"2026-06-18T16:08:56.892Z","durationMs":529800,"target":"apps/location-billing/src/locales/en.json","findings":{"errors":13,"warnings":511,"concat":0,"llmFindings":76},"llm":{"enabled":true,"calls":359,"totalTokens":418851,"estimatedCostUsd":0.6622903}}}},
+  "2026-06-18T16:17:47.560Z":{"ghl-revex-frontend":{"locations":{"startedAt":"2026-06-18T16:17:47.560Z","durationMs":568466,"target":"apps/locations/src/locales/en.json","findings":{"errors":9,"warnings":728,"concat":4,"llmFindings":58},"llm":{"enabled":true,"calls":391,"totalTokens":438042,"estimatedCostUsd":0.6685404}}}},
+  "2026-06-18T16:27:16.936Z":{"ghl-revex-frontend":{"membership-analytics":{"startedAt":"2026-06-18T16:27:16.936Z","durationMs":108,"target":"apps/membership-analytics/src/locales/en.json","findings":{"errors":0,"warnings":0,"concat":0,"llmFindings":0},"llm":{"enabled":true,"calls":0,"totalTokens":0,"estimatedCostUsd":0}}}},
+  "2026-06-18T16:27:17.608Z":{"ghl-revex-frontend":{"membership-settings":{"startedAt":"2026-06-18T16:27:17.608Z","durationMs":125195,"target":"apps/membership-settings/src/locales/en.json","findings":{"errors":1,"warnings":46,"concat":0,"llmFindings":11},"llm":{"enabled":true,"calls":107,"totalTokens":110033,"estimatedCostUsd":0.1621345}}}},
+  "2026-06-18T16:29:23.122Z":{"ghl-revex-frontend":{"memberships":{"startedAt":"2026-06-18T16:29:23.122Z","durationMs":1166183,"target":"apps/memberships/src/locales/en.json","findings":{"errors":29,"warnings":1461,"concat":0,"llmFindings":206},"llm":{"enabled":true,"calls":940,"totalTokens":1016884,"estimatedCostUsd":1.5582644}}}},
+  "2026-06-18T16:48:50.268Z":{"ghl-revex-frontend":{"phone-integration":{"startedAt":"2026-06-18T16:48:50.268Z","durationMs":2502347,"target":"apps/phone-integration/src/locales/en.json","findings":{"errors":31,"warnings":2665,"concat":4,"llmFindings":326},"llm":{"enabled":true,"calls":1809,"totalTokens":2110214,"estimatedCostUsd":3.2611116}}}},
+  "2026-06-18T17:30:33.522Z":{"ghl-revex-frontend":{"platform-billing":{"startedAt":"2026-06-18T17:30:33.522Z","durationMs":1063847,"target":"apps/platform-billing/src/locales/en.json","findings":{"errors":37,"warnings":1190,"concat":0,"llmFindings":152},"llm":{"enabled":true,"calls":818,"totalTokens":927928,"estimatedCostUsd":1.4378444}}}},
+  "2026-06-18T17:48:18.281Z":{"ghl-revex-frontend":{"power-dialer":{"startedAt":"2026-06-18T17:48:18.281Z","durationMs":65597,"target":"apps/power-dialer/src/locales/en.json","findings":{"errors":0,"warnings":135,"concat":0,"llmFindings":3},"llm":{"enabled":true,"calls":45,"totalTokens":48632,"estimatedCostUsd":0.0716884}}}},
+  "2026-06-18T17:49:24.197Z":{"ghl-revex-frontend":{"reputation":{"startedAt":"2026-06-18T17:49:24.197Z","durationMs":406948,"target":"apps/reputation/src/locales/en-US.json","findings":{"errors":3,"warnings":690,"concat":1,"llmFindings":39},"llm":{"enabled":true,"calls":371,"totalTokens":389741,"estimatedCostUsd":0.5771337}}}},
+  "2026-06-18T17:56:11.984Z":{"ghl-revex-frontend":{"reselling":{"startedAt":"2026-06-18T17:56:11.984Z","durationMs":91053,"target":"apps/reselling/src/locales/en-US.json","findings":{"errors":0,"warnings":229,"concat":8,"llmFindings":17},"llm":{"enabled":true,"calls":72,"totalTokens":77983,"estimatedCostUsd":0.1203599}}}},
+  "2026-06-18T17:57:43.877Z":{"ghl-revex-frontend":{"locales":{"startedAt":"2026-06-18T17:57:43.877Z","durationMs":216241,"target":"apps/reselling/src/locales/remote/en-US.json","findings":{"errors":4,"warnings":311,"concat":8,"llmFindings":38},"llm":{"enabled":true,"calls":165,"totalTokens":186319,"estimatedCostUsd":0.2880969}}}},
+  "2026-06-18T18:01:20.985Z":{"ghl-revex-frontend":{"saas":{"startedAt":"2026-06-18T18:01:20.985Z","durationMs":503374,"target":"apps/saas/src/locales/en.json","findings":{"errors":4,"warnings":157,"concat":1,"llmFindings":49},"llm":{"enabled":true,"calls":438,"totalTokens":472704,"estimatedCostUsd":0.7070748}}}},
+  "2026-06-18T18:09:45.263Z":{"ghl-revex-frontend":{"snapshots":{"startedAt":"2026-06-18T18:09:45.263Z","durationMs":332395,"target":"apps/snapshots/src/locales/en.json","findings":{"errors":1,"warnings":16,"concat":0,"llmFindings":57},"llm":{"enabled":true,"calls":239,"totalTokens":283793,"estimatedCostUsd":0.4578003}}}},
+  "2026-06-18T18:15:18.528Z":{"ghl-revex-frontend":{"visibility-ai":{"startedAt":"2026-06-18T18:15:18.528Z","durationMs":729050,"target":"apps/visibility-ai/src/locales/en.json","findings":{"errors":1,"warnings":255,"concat":0,"llmFindings":39},"llm":{"enabled":true,"calls":661,"totalTokens":687511,"estimatedCostUsd":0.9976373}}}},
+  "2026-06-18T18:27:28.503Z":{"ghl-revex-frontend":{"wallet-kit":{"startedAt":"2026-06-18T18:27:28.503Z","durationMs":33876,"target":"apps/wallet-kit/src/locales/en-US.json","findings":{"errors":0,"warnings":12,"concat":0,"llmFindings":1},"llm":{"enabled":true,"calls":14,"totalTokens":15853,"estimatedCostUsd":0.0247143}}}},
+  "2026-06-18T18:28:02.762Z":{"ghl-revex-frontend":{"wordpress":{"startedAt":"2026-06-18T18:28:02.762Z","durationMs":123839,"target":"apps/wordpress/src/locales/en.json","findings":{"errors":5,"warnings":202,"concat":21,"llmFindings":17},"llm":{"enabled":true,"calls":89,"totalTokens":108938,"estimatedCostUsd":0.174709}}}}
 };
 
 // ---- Dedup: keep the latest run per repo/app key ----
@@ -200,7 +342,12 @@ for (const ts of Object.keys(RAW)) {
       totalRuns++;
       const m = RAW[ts][repo][app];
       const key = repo + "::" + app;
-      if (!latest[key] || m.startedAt > latest[key].startedAt) {
+      const cur = latest[key];
+      const mEnabled = !!(m.llm && m.llm.enabled);
+      const curEnabled = cur ? !!(cur.llm && cur.llm.enabled) : false;
+      // Prefer the latest LLM-enabled run; fall back to the latest run overall.
+      const better = !cur || (mEnabled && !curEnabled) || (mEnabled === curEnabled && m.startedAt > cur.startedAt);
+      if (better) {
         latest[key] = { repo, app, ...m };
       }
     }
@@ -220,20 +367,7 @@ const rows = Object.values(latest).map(r => ({
   durationMs: r.durationMs || 0,
 }));
 
-// ---- Totals ----
-const sum = k => rows.reduce((a, r) => a + r[k], 0);
-const totals = {
-  apps: rows.length,
-  errors: sum("errors"),
-  warnings: sum("warnings"),
-  concat: sum("concat"),
-  llmFindings: sum("llmFindings"),
-  calls: sum("calls"),
-  tokens: sum("totalTokens"),
-  cost: sum("cost"),
-  durationMs: sum("durationMs"),
-};
-
+// ---- Formatters ----
 const fmt = n => n.toLocaleString("en-US");
 const fmtCost = n => "$" + n.toFixed(2);
 const fmtDur = ms => {
@@ -241,30 +375,69 @@ const fmtDur = ms => {
   if (s < 60) return s + "s";
   return Math.floor(s / 60) + "m " + (s % 60) + "s";
 };
+const REPO_LABEL = { "ghl-seo-app": "seo", "ghl-crm-frontend": "crm", "ghl-revex-frontend": "revex" };
+const repoTag = r => REPO_LABEL[r] || r;
+
+// ---- Filter state ----
+const repoList = [...new Set(rows.map(r => r.repo))].sort();
+let activeRepo = "all";
+const viewRows = () => activeRepo === "all" ? rows : rows.filter(r => r.repo === activeRepo);
+
+const computeTotals = rs => ({
+  apps: rs.length,
+  errors: rs.reduce((a, r) => a + r.errors, 0),
+  warnings: rs.reduce((a, r) => a + r.warnings, 0),
+  concat: rs.reduce((a, r) => a + r.concat, 0),
+  llmFindings: rs.reduce((a, r) => a + r.llmFindings, 0),
+  calls: rs.reduce((a, r) => a + r.calls, 0),
+  tokens: rs.reduce((a, r) => a + r.totalTokens, 0),
+  cost: rs.reduce((a, r) => a + r.cost, 0),
+  durationMs: rs.reduce((a, r) => a + r.durationMs, 0),
+});
+const grandTotals = computeTotals(rows);
+const allTs = Object.keys(RAW).sort();
+
+// ---- Repo filter bar ----
+function renderFilter() {
+  const opts = ["all", ...repoList];
+  const el = document.getElementById("repoFilter");
+  el.innerHTML = opts.map(o => {
+    const count = o === "all" ? rows.length : rows.filter(r => r.repo === o).length;
+    const label = o === "all" ? "All repos" : repoTag(o);
+    return `<button class="filter-btn${o === activeRepo ? " active" : ""}" data-repo="${o}">${label} <span class="cnt">${count}</span></button>`;
+  }).join("");
+  el.querySelectorAll(".filter-btn").forEach(b =>
+    b.addEventListener("click", () => { activeRepo = b.dataset.repo; renderAll(); }));
+}
 
 // ---- Report meta ----
-const allTs = Object.keys(RAW).sort();
-document.getElementById("report-meta").textContent =
-  `Localization copy-guard scan · ${totals.apps} apps across 2 repos · ${totalRuns} total runs · ` +
-  `latest run ${allTs[allTs.length - 1].replace("T", " ").replace("Z", " UTC")}`;
+function renderMeta(rs) {
+  const scope = activeRepo === "all" ? `across ${repoList.length} repos` : `· repo ${repoTag(activeRepo)}`;
+  document.getElementById("report-meta").textContent =
+    `Localization copy-guard scan · ${rs.length} apps ${scope} · ${totalRuns} total runs · ` +
+    `latest run ${allTs[allTs.length - 1].replace("T", " ").replace("Z", " UTC")}`;
+}
 
 // ---- Cards ----
-const cards = [
-  { label: "Apps scanned", value: fmt(totals.apps) },
-  { label: "Errors", value: fmt(totals.errors), cls: "error" },
-  { label: "Warnings", value: fmt(totals.warnings), cls: "warn" },
-  { label: "Concat issues", value: fmt(totals.concat), cls: "concat" },
-  { label: "LLM findings", value: fmt(totals.llmFindings), cls: "llm" },
-  { label: "Est. LLM cost", value: fmtCost(totals.cost), cls: "cost" },
-  { label: "Tokens used", value: fmt(totals.tokens), small: true },
-  { label: "LLM calls", value: fmt(totals.calls), small: true },
-  { label: "Total scan time", value: fmtDur(totals.durationMs), small: true },
-];
-document.getElementById("cards").innerHTML = cards.map(c =>
-  `<div class="card ${c.cls || ''}">
-     <div class="label">${c.label}</div>
-     <div class="value ${c.small ? 'small' : ''}">${c.value}</div>
-   </div>`).join("");
+function renderCards(rs) {
+  const t = computeTotals(rs);
+  const cards = [
+    { label: "Apps scanned", value: fmt(t.apps) },
+    { label: "Errors", value: fmt(t.errors), cls: "error" },
+    { label: "Warnings", value: fmt(t.warnings), cls: "warn" },
+    { label: "Concat issues", value: fmt(t.concat), cls: "concat" },
+    { label: "LLM findings", value: fmt(t.llmFindings), cls: "llm" },
+    { label: "Est. LLM cost", value: fmtCost(t.cost), cls: "cost" },
+    { label: "Tokens used", value: fmt(t.tokens), small: true },
+    { label: "LLM calls", value: fmt(t.calls), small: true },
+    { label: "Total scan time", value: fmtDur(t.durationMs), small: true },
+  ];
+  document.getElementById("cards").innerHTML = cards.map(c =>
+    `<div class="card ${c.cls || ""}">
+       <div class="label">${c.label}</div>
+       <div class="value ${c.small ? "small" : ""}">${c.value}</div>
+     </div>`).join("");
+}
 
 // ---- Table (sortable) ----
 const tbody = document.querySelector("#appTable tbody");
@@ -274,14 +447,14 @@ function cell(v, cls) {
   return `<td class="${c}">${typeof v === "number" ? fmt(v) : v}</td>`;
 }
 function renderTable() {
-  const sorted = [...rows].sort((a, b) => {
+  const sorted = [...viewRows()].sort((a, b) => {
     const av = a[sortKey], bv = b[sortKey];
     if (typeof av === "string") return sortDir * av.localeCompare(bv);
     return sortDir * (av - bv);
   });
   tbody.innerHTML = sorted.map(r =>
     `<tr>
-       <td>${r.app}<span class="repo-tag">${r.repo === 'ghl-seo-app' ? 'seo' : 'crm'}</span></td>
+       <td>${r.app}<span class="repo-tag">${repoTag(r.repo)}</span></td>
        ${cell(r.errors, "num-error")}
        ${cell(r.warnings, "num-warn")}
        ${cell(r.concat)}
@@ -300,64 +473,83 @@ document.querySelectorAll("#appTable th").forEach(th => {
     renderTable();
   });
 });
-renderTable();
 
 // ---- Charts ----
 Chart.defaults.color = "#9aa3b2";
 Chart.defaults.borderColor = "#2a2f3a";
 Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+let findingsChartObj = null, costChartObj = null;
 
-// Top apps by total findings for readability
-const byFindings = [...rows].sort((a, b) =>
-  (b.errors + b.warnings + b.concat + b.llmFindings) - (a.errors + a.warnings + a.concat + a.llmFindings));
-const labels = byFindings.map(r => r.app);
+function renderCharts(rs) {
+  // Grow chart height with the number of bars so every app label is shown (no auto-skip).
+  const h = Math.max(320, rs.length * 22 + 70);
+  document.getElementById("findingsChart").parentElement.style.height = h + "px";
+  document.getElementById("costChart").parentElement.style.height = h + "px";
 
-new Chart(document.getElementById("findingsChart"), {
-  type: "bar",
-  data: {
-    labels,
-    datasets: [
-      { label: "Errors", data: byFindings.map(r => r.errors), backgroundColor: "#ff6b6b" },
-      { label: "Warnings", data: byFindings.map(r => r.warnings), backgroundColor: "#ffb454" },
-      { label: "Concat", data: byFindings.map(r => r.concat), backgroundColor: "#c792ea" },
-      { label: "LLM", data: byFindings.map(r => r.llmFindings), backgroundColor: "#4dd4ac" },
-    ],
-  },
-  options: {
-    indexAxis: "y",
-    maintainAspectRatio: false,
-    responsive: true,
-    scales: { x: { stacked: true, beginAtZero: true }, y: { stacked: true } },
-    plugins: { legend: { position: "top" } },
-  },
-});
-
-const byCost = [...rows].sort((a, b) => b.cost - a.cost);
-new Chart(document.getElementById("costChart"), {
-  type: "bar",
-  data: {
-    labels: byCost.map(r => r.app),
-    datasets: [{
-      label: "Est. cost (USD)",
-      data: byCost.map(r => +r.cost.toFixed(4)),
-      backgroundColor: "#ffd166",
-    }],
-  },
-  options: {
-    indexAxis: "y",
-    maintainAspectRatio: false,
-    responsive: true,
-    scales: { x: { beginAtZero: true, ticks: { callback: v => "$" + v } } },
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: c => "$" + c.parsed.x.toFixed(4) } },
+  const byFindings = [...rs].sort((a, b) =>
+    (b.errors + b.warnings + b.concat + b.llmFindings) - (a.errors + a.warnings + a.concat + a.llmFindings));
+  const labels = byFindings.map(r => r.app);
+  if (findingsChartObj) findingsChartObj.destroy();
+  findingsChartObj = new Chart(document.getElementById("findingsChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        { label: "Errors", data: byFindings.map(r => r.errors), backgroundColor: "#ff6b6b" },
+        { label: "Warnings", data: byFindings.map(r => r.warnings), backgroundColor: "#ffb454" },
+        { label: "Concat", data: byFindings.map(r => r.concat), backgroundColor: "#c792ea" },
+        { label: "LLM", data: byFindings.map(r => r.llmFindings), backgroundColor: "#4dd4ac" },
+      ],
     },
-  },
-});
+    options: {
+      indexAxis: "y",
+      maintainAspectRatio: false,
+      responsive: true,
+      scales: {
+        x: { stacked: true, beginAtZero: true },
+        y: { stacked: true, ticks: { autoSkip: false, font: { size: 11 } } },
+      },
+      plugins: { legend: { position: "top" } },
+    },
+  });
+
+  const byCost = [...rs].sort((a, b) => b.cost - a.cost);
+  if (costChartObj) costChartObj.destroy();
+  costChartObj = new Chart(document.getElementById("costChart"), {
+    type: "bar",
+    data: {
+      labels: byCost.map(r => r.app),
+      datasets: [{ label: "Est. cost (USD)", data: byCost.map(r => +r.cost.toFixed(4)), backgroundColor: "#ffd166" }],
+    },
+    options: {
+      indexAxis: "y",
+      maintainAspectRatio: false,
+      responsive: true,
+      scales: {
+        x: { beginAtZero: true, ticks: { callback: v => "$" + v } },
+        y: { ticks: { autoSkip: false, font: { size: 11 } } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => "$" + c.parsed.x.toFixed(4) } },
+      },
+    },
+  });
+}
+
+function renderAll() {
+  const rs = viewRows();
+  renderFilter();
+  renderMeta(rs);
+  renderCards(rs);
+  renderTable();
+  renderCharts(rs);
+}
+renderAll();
 
 document.getElementById("footer").textContent =
   `Generated from copy-guard-metrics.json · model gemini-2.5-flash @ $0.30/1M in, $2.50/1M out · ` +
-  `${fmt(totals.tokens)} tokens · ${fmtCost(totals.cost)} total`;
+  `${fmt(grandTotals.tokens)} tokens · ${fmtCost(grandTotals.cost)} total (all repos)`;
 </script>
 </body>
 </html>
