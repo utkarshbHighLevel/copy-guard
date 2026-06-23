@@ -107,6 +107,11 @@
 <main>
   <div class="cards" id="cards"></div>
 
+  <section class="stats-section">
+    <h2>Cost &amp; time per app <span class="sub">(reflects the active repo filter)</span></h2>
+    <div class="cards" id="statCards"></div>
+  </section>
+
   <div class="repo-filter" id="repoFilter"></div>
 
   <p class="legend-note">
@@ -455,9 +460,17 @@ function renderMeta(rs) {
 }
 
 // ---- Cards ----
+function paintCards(elId, cards) {
+  document.getElementById(elId).innerHTML = cards.map(c =>
+    `<div class="card ${c.cls || ""}">
+       <div class="label">${c.label}</div>
+       <div class="value ${c.small ? "small" : ""}">${c.value}</div>
+     </div>`).join("");
+}
+
 function renderCards(rs) {
   const t = computeTotals(rs);
-  const cards = [
+  paintCards("cards", [
     { label: "Apps scanned", value: fmt(t.apps) },
     { label: "Errors", value: fmt(t.errors), cls: "error" },
     { label: "Warnings", value: fmt(t.warnings), cls: "warn" },
@@ -467,12 +480,35 @@ function renderCards(rs) {
     { label: "Tokens used", value: fmt(t.tokens), small: true },
     { label: "LLM calls", value: fmt(t.calls), small: true },
     { label: "Total scan time", value: fmtDur(t.durationMs), small: true },
-  ];
-  document.getElementById("cards").innerHTML = cards.map(c =>
-    `<div class="card ${c.cls || ""}">
-       <div class="label">${c.label}</div>
-       <div class="value ${c.small ? "small" : ""}">${c.value}</div>
-     </div>`).join("");
+  ]);
+}
+
+// ---- Per-app stats (avg / median / max for cost and time) ----
+const median = arr => {
+  if (!arr.length) return 0;
+  const s = [...arr].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+};
+function renderStats(rs) {
+  const t = computeTotals(rs);
+  // Cost stats are over apps that actually ran the LLM (cost > 0) — averaging over deterministic
+  // zero-cost apps would understate them. Max is the single highest app in view.
+  const llmApps = rs.filter(r => r.cost > 0);
+  const avgCost = llmApps.length ? t.cost / llmApps.length : 0;
+  const medCost = median(llmApps.map(r => r.cost));
+  const maxCost = rs.reduce((m, r) => Math.max(m, r.cost), 0);
+  const avgDur = rs.length ? t.durationMs / rs.length : 0;
+  const medDur = median(rs.map(r => r.durationMs));
+  const maxDur = rs.reduce((m, r) => Math.max(m, r.durationMs), 0);
+  paintCards("statCards", [
+    { label: "Avg cost / app", value: fmtCost(avgCost), cls: "cost" },
+    { label: "Median cost", value: fmtCost(medCost), cls: "cost" },
+    { label: "Max cost", value: fmtCost(maxCost), cls: "cost" },
+    { label: "Avg time / app", value: fmtDur(avgDur) },
+    { label: "Median time", value: fmtDur(medDur) },
+    { label: "Max time", value: fmtDur(maxDur) },
+  ]);
 }
 
 // ---- Table (sortable) ----
@@ -587,6 +623,7 @@ function renderAll() {
   renderFilter();
   renderMeta(rs);
   renderCards(rs);
+  renderStats(rs);
   renderTable();
   renderCharts(rs);
 }
